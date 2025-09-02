@@ -39,7 +39,7 @@ logs/
 
 # .prompts
 .prompts.md
-.prompts/
+.prompts-support-files/
 
 # VS Code
 .vscode/
