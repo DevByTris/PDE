@@ -205,10 +205,20 @@ export class PDEApiClient {
   }
 
   /**
-   * Delete a project
+   * Delete a project (removes both metadata and files)
    */
-  async deleteProject(projectId: string): Promise<{ success: boolean; message: string }> {
-    return await this.request<{ success: boolean; message: string }>(`/api/projects/${encodeURIComponent(projectId)}`, {
+  async deleteProject(projectId: string): Promise<{ 
+    success: boolean; 
+    message: string; 
+    filesDeleted?: boolean;
+    warning?: string;
+  }> {
+    return await this.request<{ 
+      success: boolean; 
+      message: string; 
+      filesDeleted?: boolean;
+      warning?: string;
+    }>(`/api/projects/${encodeURIComponent(projectId)}`, {
       method: 'DELETE'
     });
   }

@@ -102,7 +102,17 @@ export function ProjectCard({ project, viewMode, onDelete }: ProjectCardProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete && confirm(`Are you sure you want to delete the project "${project.displayName || project.name}"?\n\nThis will only remove it from the PDE dashboard, not delete the actual files.`)) {
+    
+    const confirmed = confirm(
+      `WARNING: This will permanently delete the project "${project.displayName || project.name}"!\n\n` +
+      `This action will:\n` +
+      `• Delete all project files from: ${project.path}\n` +
+      `• Remove the project from PDE interface\n` +
+      `• This CANNOT be undone\n\n` +
+      `Are you absolutely sure you want to proceed?`
+    );
+    
+    if (confirmed && onDelete) {
       onDelete(project.id);
     }
   };

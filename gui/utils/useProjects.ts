@@ -140,7 +140,7 @@ export function useProjects(): UseProjectsReturn {
   }, [checkApiConnection, refreshProjects]);
 
   /**
-   * Delete a project
+   * Delete a project (removes both metadata and files)
    */
   const deleteProject = useCallback(async (projectId: string) => {
     try {
@@ -160,6 +160,17 @@ export function useProjects(): UseProjectsReturn {
       
       if (result.success) {
         console.log(`PDE Frontend: Project deleted successfully: ${projectId}`);
+        
+        // Show appropriate success message
+        if (result.filesDeleted) {
+          console.log('Project files permanently deleted from disk');
+        }
+        
+        // Show warning if files couldn't be deleted
+        if (result.warning) {
+          console.warn('Warning:', result.warning);
+        }
+        
         // Refresh projects after deletion
         await refreshProjects();
       } else {
@@ -170,6 +181,7 @@ export function useProjects(): UseProjectsReturn {
       console.error('PDE Frontend: Failed to delete project:', err);
       const errorMessage = handleApiError(err);
       setError(errorMessage);
+      throw err; // Re-throw so the UI can handle it
     } finally {
       setLoading(false);
     }

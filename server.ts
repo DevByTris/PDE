@@ -308,38 +308,63 @@ async function handleAPI(request: Request): Promise<Response> {
         const projectId = decodeURIComponent(pathParts[1]);
         console.log(`🗑️ Deleting project: ${projectId}`);
         
-        // Try direct deletion first
-        let success = await metadata.removeProject(projectId);
-        let deletedProjectName = projectId;
+        // Find the project first to get its path
+        const allProjects = metadata.getAllProjects();
+        let projectToDelete = allProjects.find(p => p.id === projectId);
         
         // If not found, try fallback search for projects with broken IDs
-        if (!success) {
-          const allProjects = metadata.getAllProjects();
-          const projectToDelete = allProjects.find(p => 
+        if (!projectToDelete) {
+          projectToDelete = allProjects.find(p => 
             p.name === projectId || 
             p.id === 'undefined' || 
             p.path.includes(projectId) ||
             `${p.category}-${p.name}` === projectId
           );
+        }
+        
+        let success = false;
+        let deletedProjectName = projectId;
+        let deletedFiles = false;
+        let errorMessage = '';
+        
+        if (projectToDelete) {
+          console.log(`📁 Found project: ${projectToDelete.name} at ${projectToDelete.path}`);
+          deletedProjectName = projectToDelete.name;
           
-          if (projectToDelete) {
-            console.log(`🔍 Found project by fallback search: ${projectToDelete.name} (ID: ${projectToDelete.id})`);
-            success = await metadata.removeProject(projectToDelete.id);
-            deletedProjectName = projectToDelete.name;
+          try {
+            // First, try to delete the project files
+            console.log(`🗂️ Attempting to delete project files at: ${projectToDelete.path}`);
+            await Deno.remove(projectToDelete.path, { recursive: true });
+            deletedFiles = true;
+            console.log(`✅ Successfully deleted project files: ${projectToDelete.path}`);
+          } catch (fileError) {
+            console.warn(`⚠️ Failed to delete project files: ${fileError.message}`);
+            errorMessage = `Warning: Could not delete project files: ${fileError.message}`;
+            // Continue with metadata deletion even if file deletion fails
           }
-        }
-        
-        // Always return success for metadata deletion, even if files don't exist
-        if (success) {
-          console.log(`✅ Successfully deleted project from metadata: ${deletedProjectName}`);
+          
+          // Remove from metadata
+          success = await metadata.removeProject(projectToDelete.id);
+          
+          if (success) {
+            console.log(`✅ Successfully removed project from metadata: ${deletedProjectName}`);
+          }
         } else {
-          console.log(`⚠️ Project not found in metadata, but returning success: ${projectId}`);
+          console.log(`⚠️ Project not found: ${projectId}`);
+          errorMessage = 'Project not found in metadata';
+          // Still return success for idempotency
+          success = true;
         }
         
-        // Return success regardless - if it's not in metadata, it's effectively "deleted"
+        const responseMessage = deletedFiles 
+          ? `Project '${deletedProjectName}' and all files permanently deleted`
+          : errorMessage || `Project '${deletedProjectName}' removed from dashboard`;
+        
         return new Response(JSON.stringify({ 
-          success: true, 
-          message: `Project '${deletedProjectName}' removed from dashboard` 
+          success: true,
+          message: responseMessage,
+          filesDeleted: deletedFiles,
+          warning: errorMessage || undefined
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });

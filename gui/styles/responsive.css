@@ -854,4 +854,110 @@
     box-shadow: none;
     border: 1px solid #ccc;
   }
+
+  /* Control Panel Mobile Optimizations */
+  .control-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .view-actions {
+    justify-content: space-between;
+    overflow-x: auto;
+    gap: 0.5rem;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .toolbar-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .filter-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-group {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .view-toggle {
+    align-self: flex-start;
+  }
+
+  .projects-table-container {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .action-group {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .action-icon {
+    min-width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .settings-section {
+    margin-bottom: 0;
+  }
+
+  .section-header {
+    padding: 1rem;
+  }
+
+  .settings-form {
+    padding: 1rem;
+  }
+
+  .radio-group {
+    gap: 0.5rem;
+  }
+
+  .checkbox-group {
+    gap: 0.5rem;
+  }
+
+  .color-palette {
+    justify-content: center;
+  }
+
+  .color-option {
+    width: 40px;
+    height: 40px;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
 }
