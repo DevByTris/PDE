@@ -1,0 +1,279 @@
+/*
+ * PDE Theme System
+ * Dark/Light themes with system preference detection
+ */
+
+:root {
+  /* Light theme (default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --accent-primary: #0d6efd;
+  --accent-hover: #0b5ed7;
+  --success: #198754;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --info: #0dcaf0;
+  
+  /* Plesk-style colors */
+  --plesk-blue: #1976d2;
+  --plesk-blue-hover: #1565c0;
+  --plesk-gray: #f5f5f5;
+  --plesk-dark-gray: #424242;
+  
+  /* Component specific */
+  --card-bg: var(--bg-primary);
+  --card-border: var(--border-color);
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --header-bg: var(--bg-secondary);
+  --sidebar-bg: var(--bg-secondary);
+  
+  /* Status colors */
+  --status-active: #28a745;
+  --status-inactive: #6c757d;
+  --status-development: #17a2b8;
+  --status-production: #28a745;
+  --status-archived: #ffc107;
+  
+  /* Project type colors */
+  --react-color: #61dafb;
+  --vue-color: #4fc08d;
+  --deno-color: #000000;
+  --node-color: #339933;
+  --static-color: #ff6b6b;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border-color: #404040;
+  --accent-primary: #4dabf7;
+  --accent-hover: #339af0;
+  
+  /* Dark Plesk adjustments */
+  --plesk-blue: #42a5f5;
+  --plesk-blue-hover: #2196f3;
+  --plesk-gray: #2d2d2d;
+  --plesk-dark-gray: #1a1a1a;
+  
+  --card-bg: var(--bg-secondary);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --header-bg: var(--bg-tertiary);
+  --sidebar-bg: var(--bg-secondary);
+  
+  /* Adjust project type colors for dark theme */
+  --react-color: #61dafb;
+  --vue-color: #4fc08d;
+  --deno-color: #ffffff;
+  --node-color: #68cc77;
+  --static-color: #ff8787;
+}
+
+/* System theme preference detection */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #404040;
+    --accent-primary: #4dabf7;
+    --accent-hover: #339af0;
+    
+    --plesk-blue: #42a5f5;
+    --plesk-blue-hover: #2196f3;
+    --plesk-gray: #2d2d2d;
+    --plesk-dark-gray: #1a1a1a;
+    
+    --card-bg: var(--bg-secondary);
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --header-bg: var(--bg-tertiary);
+    --sidebar-bg: var(--bg-secondary);
+    
+    --react-color: #61dafb;
+    --vue-color: #4fc08d;
+    --deno-color: #ffffff;
+    --node-color: #68cc77;
+    --static-color: #ff8787;
+  }
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-primary);
+}
+
+.theme-toggle::before {
+  content: '🌙';
+  position: absolute;
+  left: 6px;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.theme-toggle::after {
+  content: '☀️';
+  position: absolute;
+  right: 6px;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+}
+
+.theme-toggle-thumb {
+  width: 24px;
+  height: 24px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+[data-theme="light"] .theme-toggle-thumb {
+  transform: translateX(28px);
+}
+
+[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(0);
+}
+
+[data-theme="light"] .theme-toggle::before {
+  opacity: 0.3;
+}
+
+[data-theme="light"] .theme-toggle::after {
+  opacity: 1;
+}
+
+[data-theme="dark"] .theme-toggle::before {
+  opacity: 1;
+}
+
+[data-theme="dark"] .theme-toggle::after {
+  opacity: 0.3;
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.status-active .status-indicator {
+  background: var(--status-active);
+  box-shadow: 0 0 0 2px var(--status-active)33;
+}
+
+.status-inactive .status-indicator {
+  background: var(--status-inactive);
+}
+
+.status-development .status-indicator {
+  background: var(--status-development);
+  animation: pulse 2s infinite;
+}
+
+.status-production .status-indicator {
+  background: var(--status-production);
+}
+
+.status-archived .status-indicator {
+  background: var(--status-archived);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Project type badges */
+.project-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.project-type-react {
+  background: var(--react-color)22;
+  color: var(--react-color);
+  border: 1px solid var(--react-color)44;
+}
+
+.project-type-vue {
+  background: var(--vue-color)22;
+  color: var(--vue-color);
+  border: 1px solid var(--vue-color)44;
+}
+
+.project-type-deno {
+  background: var(--deno-color)22;
+  color: var(--deno-color);
+  border: 1px solid var(--deno-color)44;
+}
+
+.project-type-node {
+  background: var(--node-color)22;
+  color: var(--node-color);
+  border: 1px solid var(--node-color)44;
+}
+
+.project-type-static {
+  background: var(--static-color)22;
+  color: var(--static-color);
+  border: 1px solid var(--static-color)44;
+}
+
+/* Accessibility enhancements for themes */
+@media (prefers-contrast: high) {
+  .theme-toggle {
+    border-width: 3px;
+  }
+  
+  .status-indicator {
+    border: 2px solid var(--text-primary);
+  }
+  
+  .project-type-badge {
+    border-width: 2px;
+    font-weight: 700;
+  }
+}
+
+/* Focus states for theme controls */
+.theme-toggle:focus {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}

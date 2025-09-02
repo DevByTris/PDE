@@ -1,0 +1,122 @@
+# PDE (Personal Development Environment) - GitIgnore
+# This file ensures personal/professional projects and sensitive data are not committed
+
+# ===== PERSONAL/PROFESSIONAL PROJECTS =====
+# Exclude all user projects (the main purpose of this gitignore)
+projects/
+!projects/.gitkeep
+
+# ===== METADATA & RUNTIME DATA =====
+# PDE metadata contains personal project information
+metadata/
+!metadata/.gitkeep
+
+# ===== DENO & DEPENDENCY MANAGEMENT =====
+# Deno cache (equivalent to node_modules for Deno)
+.deno/
+deno.lock
+
+# ===== DEVELOPMENT & BUILD ARTIFACTS =====
+# Build outputs
+dist/
+build/
+out/
+target/
+
+# Development logs
+*.log
+logs/
+
+# ===== ENVIRONMENT & CONFIGURATION =====
+# Environment variables (may contain sensitive data)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===== EDITOR & IDE =====
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ===== OPERATING SYSTEM =====
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ===== TESTING & COVERAGE =====
+coverage/
+*.lcov
+.nyc_output
+
+# ===== TEMPORARY & CACHE FILES =====
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# ===== SECURITY & SENSITIVE DATA =====
+# Keys and certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Database files (if any local databases are used)
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== DOCUMENTATION BUILDS =====
+# Exclude generated documentation (keep source docs)
+docs/build/
+docs/dist/
+
+# ===== CUSTOM PDE EXCLUSIONS =====
+# User-specific PDE configuration (if we add this later)
+pde.user.json
+user-settings.json
+
+# Backup files
+*.backup
+*.bak
+
+# ===== DEPLOYMENT & PRODUCTION =====
+# Production builds and deployment artifacts
+*.exe
+*.app
+*.dmg
+*.deb
+*.rpm
+
+# Docker
+docker-compose.override.yml
+
+# ===== NOTES =====
+# Keep this for reference but exclude from commits
+.notes/
+scratch/
+TODO.private.md

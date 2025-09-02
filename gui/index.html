@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Personal Development Environment - Plesk-style project management dashboard">
+  <meta name="author" content="PDE">
+  <meta name="theme-color" content="#1a1a1a">
+  
+  <!-- SEO and Open Graph -->
+  <meta property="og:title" content="Personal Development Environment">
+  <meta property="og:description" content="Plesk-style project management dashboard">
+  <meta property="og:type" content="website">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="./styles/main.css" as="style">
+  <link rel="preload" href="https://esm.sh/react@18.2.0" as="script" crossorigin>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/themes.css">
+  <link rel="stylesheet" href="./styles/components.css">
+  <link rel="stylesheet" href="./styles/responsive.css">
+  
+  <title>PDE - Personal Development Environment</title>
+</head>
+<body>
+  <!-- Accessibility skip link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  
+  <!-- Theme detection script (runs before React to prevent flash) -->
+  <script>
+    // Detect system theme preference and apply immediately
+    const getTheme = () => {
+      const stored = localStorage.getItem('pde-theme');
+      if (stored) return stored;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    
+    document.documentElement.setAttribute('data-theme', getTheme());
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('pde-theme')) {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    });
+  </script>
+  
+  <!-- Loading indicator -->
+  <div id="loading" class="loading-container" aria-hidden="true">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading PDE...</p>
+    </div>
+  </div>
+  
+  <!-- Main React mount point -->
+  <div id="root" role="application" aria-label="Personal Development Environment Dashboard">
+    <!-- Fallback content for non-JS users -->
+    <noscript>
+      <div class="noscript-fallback">
+        <h1>🚀 Personal Development Environment</h1>
+        <p>This application requires JavaScript to function properly.</p>
+        <p>Please enable JavaScript in your browser and refresh the page.</p>
+      </div>
+    </noscript>
+  </div>
+  
+  <!-- Error boundary fallback -->
+  <div id="error-fallback" class="error-container" style="display: none;" role="alert">
+    <h1>⚠️ Something went wrong</h1>
+    <p>The PDE encountered an unexpected error.</p>
+    <button onclick="window.location.reload()" class="retry-button">
+      🔄 Reload Application
+    </button>
+    <details class="error-details">
+      <summary>Technical Details</summary>
+      <pre id="error-message"></pre>
+    </details>
+  </div>
+  
+  <!-- React Application -->
+  <script type="module" src="./app.tsx"></script>
+  
+  <!-- Service Worker for offline support (future enhancement) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        // navigator.serviceWorker.register('./sw.js'); // Future enhancement
+      });
+    }
+  </script>
+  
+  <!-- Analytics and performance monitoring placeholder -->
+  <script>
+    // Performance monitoring
+    window.addEventListener('load', () => {
+      const perfData = performance.getEntriesByType('navigation')[0];
+      console.log('PDE Load Time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
+    });
+  </script>
+</body>
+</html>
