@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { pdeApi, handleApiError, type PDEApiClient } from './apiClient.ts';
+import { pdeApi, handleApiError, type PDEApiClient, type ProjectCreationConfig } from './apiClient.ts';
 
 // Types from our core system
 interface ProjectInfo {
@@ -30,6 +30,7 @@ interface UseProjectsReturn {
   refreshProjects: () => Promise<void>;
   scanProjects: () => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
+  createProject: (config: ProjectCreationConfig) => Promise<void>;
   lastScanTime: Date | null;
   isApiConnected: boolean;
 }
@@ -174,6 +175,43 @@ export function useProjects(): UseProjectsReturn {
     }
   }, [checkApiConnection, refreshProjects]);
 
+  /**
+   * Create a new project
+   */
+  const createProject = useCallback(async (config: ProjectCreationConfig) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log('PDE Frontend: Creating project...', config.name);
+      
+      // Check API connection first
+      const connected = await checkApiConnection();
+      if (!connected) {
+        throw new Error('Cannot connect to PDE server for project creation.');
+      }
+
+      // Create project
+      const result = await pdeApi.createProject(config);
+      
+      if (result.success) {
+        console.log(`PDE Frontend: Project created successfully: ${config.name}`);
+        // Refresh projects after creation
+        await refreshProjects();
+      } else {
+        throw new Error(result.error || result.message || 'Failed to create project');
+      }
+      
+    } catch (err) {
+      console.error('PDE Frontend: Failed to create project:', err);
+      const errorMessage = handleApiError(err);
+      setError(errorMessage);
+      throw err; // Re-throw so the modal can handle it
+    } finally {
+      setLoading(false);
+    }
+  }, [checkApiConnection, refreshProjects]);
+
   // Initial load
   useEffect(() => {
     refreshProjects();
@@ -186,6 +224,7 @@ export function useProjects(): UseProjectsReturn {
     refreshProjects,
     scanProjects,
     deleteProject,
+    createProject,
     lastScanTime,
     isApiConnected
   };

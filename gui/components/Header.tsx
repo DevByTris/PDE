@@ -72,18 +72,16 @@ export function Header({ onMenuToggle, onRefresh, onThemeToggle, theme, loading,
           </button>
           
           <div className="theme-toggle-container">
-            <label htmlFor="theme-toggle" className="sr-only">
-              Toggle theme (Ctrl+T)
+            <label className="toggle" htmlFor="theme-toggle">
+              <input 
+                id="theme-toggle"
+                type="checkbox"
+                checked={theme === 'dark'}
+                onChange={onThemeToggle}
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              />
+              <div></div>
             </label>
-            <button 
-              id="theme-toggle"
-              className="theme-toggle"
-              onClick={onThemeToggle}
-              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-              title={`Toggle theme (Ctrl+T) - Currently ${theme}`}
-            >
-              <div className="theme-toggle-thumb"></div>
-            </button>
           </div>
           
           <div className="user-menu">

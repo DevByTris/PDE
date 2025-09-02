@@ -9,14 +9,18 @@ The Personal Development Environment (PDE) is a custom monorepo with a Plesk-sty
 ### ✅ Completed Features
 - **Project Scanner**: Automatically discovers domain and subdomain projects
 - **Project Management**: View and organize personal/professional projects
-- **Project Deletion**: Clean removal of projects from the dashboard
-- **Responsive Dashboard**: Plesk-style control panel interface
+- **Project Creation Wizard**: Template-based project setup with React+Deno, Static HTML, Deno API, Vue+Deno
+- **Project Deletion**: Clean removal of projects from the dashboard with enhanced orphaned metadata cleanup
+- **Responsive Dashboard**: Plesk-style control panel interface with mobile-first design
+- **Advanced Theme Toggle**: Aaron Iker-style theme switching with View Transitions API and morphing animations
 - **Real-time Updates**: File system watching for automatic project detection
+- **Templates API**: Dynamic template loading and category filtering
+- **Enhanced Mobile Support**: Touch-friendly interactions and responsive breakpoints
 
 ### 🚧 In Development
-- **Project Creation Wizard**: Template-based project setup
-- **Development Server Integration**: Auto-start/stop project servers
-- **Advanced Project Templates**: React, Vue, Deno, etc.
+- **Project Development Server Integration**: Auto-start/stop project servers
+- **Advanced Project Management**: Project settings and environment configuration
+- **Custom Template Creation**: User-defined project templates
 
 ## Technology Stack
 
@@ -24,6 +28,7 @@ The Personal Development Environment (PDE) is a custom monorepo with a Plesk-sty
 - **Frontend**: React 19 with TypeScript
 - **Styling**: Vanilla CSS with theme support
 - **Build**: esbuild for on-the-fly TypeScript transpilation
+- **Templates**: React+Deno, Static HTML, Deno API, Vue+Deno project templates
 - **Architecture**: Monorepo with organized project structure
 
 ## Project Structure
@@ -46,6 +51,38 @@ c:\quoder\
 ├── server.ts             # Deno development server
 └── config.ts             # PDE configuration
 ```
+
+## Project Creation Wizard
+
+### Available Templates
+
+1. **React + Deno** - Modern React application powered by Deno
+   - TypeScript, React 18, ESBuild
+   - Responsive CSS with mobile-first design
+   - Ready-to-run development setup
+
+2. **Static HTML** - Simple static website
+   - HTML5, CSS3, JavaScript
+   - Responsive grid layouts
+   - Image and asset organization
+
+3. **Deno API** - RESTful API server
+   - TypeScript, Deno runtime
+   - Health checks and middleware
+   - CORS and error handling
+
+4. **Vue + Deno** - Vue.js application with Deno backend
+   - Vue 3, TypeScript, Composition API
+   - Deno-powered development server
+   - Component-based architecture
+
+### Template Features
+
+- **Variable Replacement**: Dynamic project names, descriptions, and domains
+- **Directory Structure**: Automated folder creation
+- **Development Ready**: All templates include development configurations
+- **Responsive Design**: Mobile-first CSS included
+- **TypeScript Support**: Full type safety across all templates
 
 ## Getting Started
 
@@ -84,14 +121,22 @@ projects/
 
 ## Version History
 
-### v0.1.0 (Current)
+### v0.2.0 (Current) - 2025-09-02
+- **Project Creation Wizard**: Complete template-based project setup
+- **Advanced Theme Toggle**: Aaron Iker-style animations with View Transitions API
+- **Enhanced Mobile Support**: Touch-friendly responsive design
+- **Templates API**: Dynamic template loading and filtering
+- **Metadata Cleanup**: Automatic orphaned entry removal
+- **Improved Delete Operations**: Enhanced project removal with fallback logic
+
+### v0.1.0
 - Initial PDE implementation
 - Project scanning and detection
 - Basic project management
-- Plesk-style dashboard
+- Plesk-style control panel interface
 - Project deletion functionality
 
 ---
 
-*Last updated: 2025-09-02*
-*Next session: Implement Project Creation Wizard*
+*Last updated: 2025-09-02*  
+*Next session: Project Development Server Integration*

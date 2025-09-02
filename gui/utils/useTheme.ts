@@ -28,9 +28,34 @@ export function useTheme(): UseThemeReturn {
     }
   }, []);
 
-  // Apply theme to document
-  const applyTheme = useCallback((newEffectiveTheme: 'light' | 'dark') => {
-    document.documentElement.setAttribute('data-theme', newEffectiveTheme);
+  // Apply theme to document with View Transition API
+  const applyTheme = useCallback((newEffectiveTheme: 'light' | 'dark', toggleElement?: HTMLElement) => {
+    const applyThemeChange = () => {
+      document.documentElement.setAttribute('data-theme', newEffectiveTheme);
+    };
+
+    // Use View Transition API if supported
+    if ('startViewTransition' in document && toggleElement) {
+      // Calculate position from toggle element
+      const rect = toggleElement.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      // @ts-ignore - View Transition API is newer
+      const transition = document.startViewTransition(() => {
+        applyThemeChange();
+      });
+
+      transition.ready.then(() => {
+        document.documentElement.style.setProperty('--x', `${x}px`);
+        document.documentElement.style.setProperty('--y', `${y}px`);
+      }).catch((error: any) => {
+        console.warn('View Transition setup error:', error);
+      });
+    } else {
+      // Fallback for browsers without View Transition API
+      applyThemeChange();
+    }
   }, []);
 
   // Set theme with persistence
@@ -40,11 +65,17 @@ export function useTheme(): UseThemeReturn {
     updateEffectiveTheme(newTheme);
   }, [updateEffectiveTheme]);
 
-  // Toggle between light and dark (skips system)
-  const toggleTheme = useCallback(() => {
+  // Toggle between light and dark with enhanced animations
+  const toggleTheme = useCallback((event?: { target: { closest: (selector: string) => HTMLElement | null } }) => {
     const newTheme = effectiveTheme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-  }, [effectiveTheme, setTheme]);
+    setThemeState(newTheme);
+    localStorage.setItem('pde-theme', newTheme);
+    setEffectiveTheme(newTheme);
+    
+    // Get toggle element for position-aware transition
+    const toggleElement = event?.target.closest('.toggle') as HTMLElement;
+    applyTheme(newTheme, toggleElement);
+  }, [effectiveTheme, applyTheme]);
 
   // Initialize theme from localStorage or system
   useEffect(() => {
@@ -54,9 +85,11 @@ export function useTheme(): UseThemeReturn {
     updateEffectiveTheme(initialTheme);
   }, [updateEffectiveTheme]);
 
-  // Apply theme changes to DOM
+  // Apply theme changes to DOM (only for non-toggle changes)
   useEffect(() => {
-    applyTheme(effectiveTheme);
+    if (effectiveTheme) {
+      applyTheme(effectiveTheme);
+    }
   }, [effectiveTheme, applyTheme]);
 
   // Listen for system theme changes

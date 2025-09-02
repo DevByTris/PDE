@@ -36,6 +36,11 @@ logs/
 .env.production.local
 
 # ===== EDITOR & IDE =====
+
+# .prompts
+.prompts.md
+.prompts/
+
 # VS Code
 .vscode/
 !.vscode/settings.json

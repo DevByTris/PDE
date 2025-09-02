@@ -5,7 +5,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { ProjectGrid } from './ProjectGrid.tsx';
+import { NewProjectModal } from './NewProjectModal.tsx';
 import { useStats } from '../utils/useStats.ts';
+import type { ProjectCreationConfig } from '../../core/templates.ts';
 
 interface Project {
   id: string;
@@ -28,14 +30,16 @@ interface DashboardProps {
   loading: boolean;
   onRefresh: () => void;
   onDeleteProject?: (projectId: string) => void;
+  onCreateProject?: (config: ProjectCreationConfig) => Promise<void>;
   lastScanTime?: Date | null;
   isApiConnected?: boolean;
 }
 
-export function Dashboard({ projects, loading, onRefresh, onDeleteProject, lastScanTime, isApiConnected = true }: DashboardProps) {
+export function Dashboard({ projects, loading, onRefresh, onDeleteProject, onCreateProject, lastScanTime, isApiConnected = true }: DashboardProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'modified' | 'status' | 'type'>('modified');
   const [filterCategory, setFilterCategory] = useState<'all' | 'personal' | 'professional'>('all');
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   
   // Use real statistics from API
   const { stats: apiStats, loading: statsLoading, refreshStats } = useStats();
@@ -125,6 +129,7 @@ export function Dashboard({ projects, loading, onRefresh, onDeleteProject, lastS
           
           <button 
             className="action-button"
+            onClick={() => setShowNewProjectModal(true)}
             aria-label="Create new project"
           >
             <span className="action-icon">➕</span>
@@ -276,7 +281,10 @@ export function Dashboard({ projects, loading, onRefresh, onDeleteProject, lastS
                 : `No ${filterCategory} projects found. Try a different filter or create a new project.`
               }
             </p>
-            <button className="empty-action">
+            <button 
+              className="empty-action"
+              onClick={() => setShowNewProjectModal(true)}
+            >
               <span className="action-icon">➕</span>
               Create New Project
             </button>
@@ -289,6 +297,21 @@ export function Dashboard({ projects, loading, onRefresh, onDeleteProject, lastS
           />
         )}
       </div>
+      
+      {/* New Project Modal */}
+      {showNewProjectModal && (
+        <NewProjectModal
+          isOpen={showNewProjectModal}
+          onClose={() => setShowNewProjectModal(false)}
+          onCreateProject={async (config) => {
+            if (onCreateProject) {
+              await onCreateProject(config);
+              setShowNewProjectModal(false);
+              onRefresh(); // Refresh projects after creation
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

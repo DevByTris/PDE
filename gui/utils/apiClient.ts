@@ -20,6 +20,23 @@ interface ProjectInfo {
   url?: string;
 }
 
+interface ProjectCreationConfig {
+  name: string;
+  category: 'personal' | 'professional';
+  template: string;
+  domain?: string;
+  subdomain?: string;
+  description?: string;
+}
+
+interface ProjectCreationResult {
+  success: boolean;
+  message: string;
+  projectInfo?: ProjectInfo;
+  path?: string;
+  error?: string;
+}
+
 interface ScanResult {
   success: boolean;
   projectsFound: number;
@@ -195,12 +212,56 @@ export class PDEApiClient {
       method: 'DELETE'
     });
   }
+
+  /**
+   * Create a new project
+   */
+  async createProject(config: ProjectCreationConfig): Promise<ProjectCreationResult> {
+    const result = await this.request<ProjectCreationResult>('/api/projects', {
+      method: 'POST',
+      body: JSON.stringify(config)
+    });
+    
+    // Convert date strings back to Date objects in projectInfo if present
+    if (result.projectInfo && result.projectInfo.lastModified) {
+      result.projectInfo.lastModified = new Date(result.projectInfo.lastModified);
+    }
+    
+    return result;
+  }
+
+  /**
+   * Clean up orphaned metadata entries
+   */
+  async cleanupMetadata(): Promise<{ success: boolean; message: string; removedCount: number }> {
+    return await this.request<{ success: boolean; message: string; removedCount: number }>('/api/cleanup', {
+      method: 'POST'
+    });
+  }
+
+  /**
+   * Get available project templates
+   */
+  async getTemplates(category?: 'frontend' | 'fullstack' | 'backend' | 'static'): Promise<{
+    success: boolean;
+    templates: any[];
+    totalCount: number;
+    filteredCount: number;
+  }> {
+    const url = category ? `/api/templates?category=${category}` : '/api/templates';
+    return await this.request(url);
+  }
 }
 
 /**
  * Default API client instance
  */
 export const pdeApi = new PDEApiClient();
+
+/**
+ * Export types for use in components
+ */
+export type { ProjectInfo, ProjectCreationConfig, ProjectCreationResult };
 
 /**
  * Utility function to handle API errors gracefully

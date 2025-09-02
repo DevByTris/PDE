@@ -12,6 +12,8 @@
   --text-secondary: #6c757d;
   --border-color: #dee2e6;
   --accent-primary: #0d6efd;
+  --accent-color: var(--accent-primary);
+  --accent-rgb: 13, 110, 253;
   --accent-hover: #0b5ed7;
   --success: #198754;
   --warning: #ffc107;
@@ -44,6 +46,10 @@
   --deno-color: #000000;
   --node-color: #339933;
   --static-color: #ff6b6b;
+  
+  /* View Transition variables */
+  --x: 50%;
+  --y: 50%;
 }
 
 /* Dark theme */
@@ -55,6 +61,8 @@
   --text-secondary: #b3b3b3;
   --border-color: #404040;
   --accent-primary: #4dabf7;
+  --accent-color: var(--accent-primary);
+  --accent-rgb: 77, 171, 247;
   --accent-hover: #339af0;
   
   /* Dark Plesk adjustments */
@@ -104,74 +112,6 @@
     --node-color: #68cc77;
     --static-color: #ff8787;
   }
-}
-
-/* Theme toggle button */
-.theme-toggle {
-  position: relative;
-  width: 60px;
-  height: 32px;
-  background: var(--bg-tertiary);
-  border: 2px solid var(--border-color);
-  border-radius: 32px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
-}
-
-.theme-toggle:hover {
-  border-color: var(--accent-primary);
-}
-
-.theme-toggle::before {
-  content: '🌙';
-  position: absolute;
-  left: 6px;
-  font-size: 14px;
-  transition: opacity 0.3s ease;
-}
-
-.theme-toggle::after {
-  content: '☀️';
-  position: absolute;
-  right: 6px;
-  font-size: 14px;
-  transition: opacity 0.3s ease;
-}
-
-.theme-toggle-thumb {
-  width: 24px;
-  height: 24px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  transition: transform 0.3s ease;
-  z-index: 1;
-}
-
-[data-theme="light"] .theme-toggle-thumb {
-  transform: translateX(28px);
-}
-
-[data-theme="dark"] .theme-toggle-thumb {
-  transform: translateX(0);
-}
-
-[data-theme="light"] .theme-toggle::before {
-  opacity: 0.3;
-}
-
-[data-theme="light"] .theme-toggle::after {
-  opacity: 1;
-}
-
-[data-theme="dark"] .theme-toggle::before {
-  opacity: 1;
-}
-
-[data-theme="dark"] .theme-toggle::after {
-  opacity: 0.3;
 }
 
 /* Status indicators */
@@ -276,4 +216,40 @@
 .theme-toggle:focus {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
+}
+
+/* ===== VIEW TRANSITION API ANIMATIONS ===== */
+@keyframes reveal-in {
+  from {
+    clip-path: circle(0% at var(--x) var(--y));
+  }
+  to {
+    clip-path: circle(150% at var(--x) var(--y));
+  }
+}
+
+@keyframes reveal-out {
+  from {
+    clip-path: circle(150% at var(--x) var(--y));
+  }
+  to {
+    clip-path: circle(0% at var(--x) var(--y));
+  }
+}
+
+::view-transition-new(root) {
+  animation: reveal-in 0.5s ease-in-out forwards;
+  z-index: 1;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation: reveal-out 0.5s ease-in-out forwards;
+  animation-delay: 0.5s;
+  z-index: 0;
+  mix-blend-mode: normal;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
 }

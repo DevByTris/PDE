@@ -1,11 +1,20 @@
 /*
  * PDE Responsive Design
- * Mobile-first responsive layout system
+ * Mobile-first responsive layout system with enhanced touch interactions
  */
+
+/* Base mobile-first styles */
+:root {
+  /* Touch-friendly sizing */
+  --touch-target-min: 44px;
+  --mobile-padding: 1rem;
+  --tablet-padding: 1.5rem;
+  --desktop-padding: 2rem;
+}
 
 /* Dashboard Layout */
 .dashboard {
-  padding: 1.5rem;
+  padding: var(--mobile-padding);
   max-width: 1400px;
   margin: 0 auto;
   animation: fadeIn 0.3s ease-in-out;
@@ -26,8 +35,17 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   gap: 1rem;
+  flex-direction: column;
+}
+
+@media (min-width: 576px) {
+  .dashboard-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
 }
 
 .header-content h1 {
@@ -704,5 +722,136 @@
   
   .dashboard {
     animation: none;
+  }
+}
+
+/* ===== ENHANCED MOBILE RESPONSIVENESS ===== */
+
+/* Large Mobile / Small Tablet (576px+) */
+@media (min-width: 576px) {
+  .dashboard {
+    padding: var(--tablet-padding);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dashboard-header {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .header-actions {
+    gap: 1rem;
+  }
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  .dashboard {
+    padding: var(--desktop-padding);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .project-controls {
+    flex-wrap: nowrap;
+  }
+  
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+/* Desktop (992px+) */
+@media (min-width: 992px) {
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .dashboard {
+    padding: 2.5rem;
+  }
+  
+  .projects-grid {
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .action-button,
+  .view-button,
+  .filter-select {
+    min-height: var(--touch-target-min);
+    padding: 0.75rem 1rem;
+  }
+  
+  .project-card {
+    /* Remove hover effects on touch devices */
+    transition: none;
+  }
+  
+  .project-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px var(--card-shadow);
+  }
+  
+  /* Better touch spacing */
+  .quick-actions {
+    gap: 1rem;
+  }
+  
+  .quick-actions .action-button {
+    min-width: var(--touch-target-min);
+  }
+}
+
+/* Landscape Phone Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .dashboard {
+    padding: 0.75rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .dashboard {
+    padding: 0;
+  }
+  
+  .header-actions,
+  .quick-actions,
+  .project-controls {
+    display: none;
+  }
+  
+  .project-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
   }
 }

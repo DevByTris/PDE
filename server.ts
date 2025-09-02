@@ -6,6 +6,8 @@
 // Deno global type declaration
 declare const Deno: {
   readTextFile(path: string): Promise<string>;
+  writeTextFile(path: string, content: string): Promise<void>;
+  mkdir(path: string, options?: { recursive?: boolean }): Promise<void>;
   exit(code?: number): never;
   watchFs(paths: string | string[]): AsyncIterableIterator<any>;
   readDir(path: string): AsyncIterableIterator<any>;
@@ -24,7 +26,9 @@ import { loadPDEConfig } from './config.ts';
 import { createScanner } from './core/scanner.ts';
 import { createDetector } from './core/detector.ts';
 import { createMetadataManager } from './core/metadata.ts';
+import { getTemplate, replaceTemplateVariables } from './core/templates.ts';
 import type { ProjectInfo } from './core/types.ts';
+import type { ProjectCreationConfig } from './core/templates.ts';
 
 // Load configuration
 const config = loadPDEConfig();
@@ -69,6 +73,129 @@ async function handleAPI(request: Request): Promise<Response> {
         return new Response(JSON.stringify(projects), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
+      }
+      
+      if (request.method === 'POST') {
+        // Create new project
+        try {
+          const projectConfig: ProjectCreationConfig = await request.json();
+          console.log(`🚀 Creating new project: ${projectConfig.name}`);
+          
+          // Get template
+          const template = getTemplate(projectConfig.template);
+          if (!template) {
+            return new Response(JSON.stringify({ 
+              success: false, 
+              error: `Template '${projectConfig.template}' not found` 
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          
+          // Construct project path
+          let projectPath: string;
+          if (projectConfig.domain) {
+            if (projectConfig.subdomain) {
+              // Subdomain project: projects/category/domain/subdomain.domain
+              projectPath = `${projectConfig.category}/${projectConfig.domain}/${projectConfig.subdomain}.${projectConfig.domain}`;
+            } else {
+              // Domain project: projects/category/domain
+              projectPath = `${projectConfig.category}/${projectConfig.domain}`;
+            }
+          } else {
+            // Generic project: projects/category/projectName
+            projectPath = `${projectConfig.category}/${projectConfig.name}`;
+          }
+          
+          const fullProjectPath = `${config.projects.rootPath}/${projectPath}`;
+          
+          // Create project directory structure
+          try {
+            // Create directories
+            await Deno.mkdir(fullProjectPath, { recursive: true });
+            
+            for (const folder of template.folders) {
+              await Deno.mkdir(`${fullProjectPath}/${folder}`, { recursive: true });
+            }
+            
+            // Template variables
+            const templateVars = {
+              projectName: projectConfig.name,
+              description: projectConfig.description || `A ${template.name} project`,
+              domain: projectConfig.domain || '',
+              subdomain: projectConfig.subdomain || ''
+            };
+            
+            // Create files
+            for (const file of template.files) {
+              const filePath = `${fullProjectPath}/${file.path}`;
+              let content = file.content;
+              
+              // Replace template variables if this is a template file
+              if (file.isTemplate) {
+                content = replaceTemplateVariables(content, templateVars);
+              }
+              
+              // Ensure directory exists for the file
+              const fileDir = filePath.substring(0, filePath.lastIndexOf('/'));
+              if (fileDir !== fullProjectPath) {
+                await Deno.mkdir(fileDir, { recursive: true });
+              }
+              
+              await Deno.writeTextFile(filePath, content);
+            }
+            
+            console.log(`✅ Project files created at: ${fullProjectPath}`);
+            
+            // Detect project info and add to metadata
+            const projectInfo = await detector.detectProject(fullProjectPath);
+            
+            // Set additional project information
+            projectInfo.id = projectConfig.domain && projectConfig.subdomain 
+              ? `${projectConfig.subdomain}.${projectConfig.domain}`
+              : projectConfig.domain || `${projectConfig.category}-${projectConfig.name}`;
+            projectInfo.name = projectConfig.name;
+            projectInfo.category = projectConfig.category;
+            projectInfo.domain = projectConfig.domain;
+            projectInfo.subdomain = projectConfig.subdomain;
+            projectInfo.path = fullProjectPath;
+            
+            // Add to metadata
+            await metadata.addOrUpdateProject(projectInfo as ProjectInfo);
+            
+            console.log(`🎉 Project '${projectConfig.name}' created successfully!`);
+            
+            return new Response(JSON.stringify({ 
+              success: true, 
+              message: `Project '${projectConfig.name}' created successfully`,
+              projectInfo: projectInfo,
+              path: fullProjectPath
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+            
+          } catch (error) {
+            console.error(`❌ Failed to create project files:`, error);
+            return new Response(JSON.stringify({ 
+              success: false, 
+              error: `Failed to create project files: ${error.message}` 
+            }), {
+              status: 500,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          
+        } catch (error) {
+          console.error('❌ Project creation error:', error);
+          return new Response(JSON.stringify({ 
+            success: false, 
+            error: error.message 
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
       }
     }
 
@@ -202,24 +329,20 @@ async function handleAPI(request: Request): Promise<Response> {
           }
         }
         
+        // Always return success for metadata deletion, even if files don't exist
         if (success) {
-          console.log(`✅ Successfully deleted project: ${deletedProjectName}`);
-          return new Response(JSON.stringify({ 
-            success: true, 
-            message: `Project '${deletedProjectName}' deleted successfully` 
-          }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+          console.log(`✅ Successfully deleted project from metadata: ${deletedProjectName}`);
         } else {
-          console.log(`❌ Project not found: ${projectId}`);
-          return new Response(JSON.stringify({ 
-            success: false, 
-            message: `Project '${projectId}' not found` 
-          }), {
-            status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
+          console.log(`⚠️ Project not found in metadata, but returning success: ${projectId}`);
         }
+        
+        // Return success regardless - if it's not in metadata, it's effectively "deleted"
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: `Project '${deletedProjectName}' removed from dashboard` 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
     }
 
@@ -228,6 +351,74 @@ async function handleAPI(request: Request): Promise<Response> {
       if (request.method === 'GET') {
         const stats = metadata.getStats();
         return new Response(JSON.stringify(stats), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Templates API
+    if (path === '/api/templates') {
+      if (request.method === 'GET') {
+        const { PROJECT_TEMPLATES, getTemplatesByCategory } = await import('./core/templates.ts');
+        
+        // Get category filter from query params
+        const url = new URL(request.url);
+        const category = url.searchParams.get('category');
+        
+        let templates = PROJECT_TEMPLATES;
+        if (category && ['frontend', 'fullstack', 'backend', 'static'].includes(category)) {
+          templates = getTemplatesByCategory(category as any);
+        }
+        
+        console.log(`📋 Templates API: returning ${templates.length} templates${category ? ` for category '${category}'` : ''}`);
+        
+        return new Response(JSON.stringify({
+          success: true,
+          templates: templates,
+          totalCount: PROJECT_TEMPLATES.length,
+          filteredCount: templates.length
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Cleanup API - Remove orphaned metadata entries
+    if (path === '/api/cleanup') {
+      if (request.method === 'POST') {
+        console.log('🧽 Starting metadata cleanup...');
+        
+        const allProjects = metadata.getAllProjects();
+        let removedCount = 0;
+        const removedProjects: Array<{name: string; id: string; path: string}> = [];
+        
+        for (const project of allProjects) {
+          try {
+            // Check if project directory still exists
+            await Deno.stat(project.path);
+          } catch (error) {
+            // Project directory doesn't exist, remove from metadata
+            console.log(`🗑️ Removing orphaned project: ${project.name} (${project.path})`);
+            const success = await metadata.removeProject(project.id);
+            if (success) {
+              removedCount++;
+              removedProjects.push({
+                name: project.name,
+                id: project.id,
+                path: project.path
+              });
+            }
+          }
+        }
+        
+        console.log(`✅ Cleanup completed: removed ${removedCount} orphaned entries`);
+        
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Cleanup completed: removed ${removedCount} orphaned metadata entries`,
+          removedCount,
+          removedProjects
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
@@ -279,7 +470,15 @@ async function handler(request: Request): Promise<Response> {
   // Handle TypeScript files - transpile to JavaScript
   if (pathname.endsWith('.tsx') || pathname.endsWith('.ts')) {
     try {
-      const filePath = `./gui${pathname}`;
+      let filePath: string;
+      
+      // Check if it's a core file request (from gui components)
+      if (pathname.startsWith('/core/')) {
+        filePath = `.${pathname}`; // ./core/templates.ts
+      } else {
+        filePath = `./gui${pathname}`; // ./gui/app.tsx
+      }
+      
       const tsCode = await Deno.readTextFile(filePath);
       
       // Use esbuild to transpile TypeScript

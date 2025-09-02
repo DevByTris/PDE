@@ -13,7 +13,7 @@ import { useTheme } from '../utils/useTheme.ts';
 export function PDE() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'settings'>('dashboard');
-  const { projects, loading, error, refreshProjects, scanProjects, deleteProject, lastScanTime, isApiConnected } = useProjects();
+  const { projects, loading, error, refreshProjects, scanProjects, deleteProject, createProject, lastScanTime, isApiConnected } = useProjects();
   const { theme, toggleTheme } = useTheme();
 
   // Auto-refresh projects every 30 seconds
@@ -90,6 +90,7 @@ export function PDE() {
               loading={loading}
               onRefresh={scanProjects}
               onDeleteProject={deleteProject}
+              onCreateProject={createProject}
               lastScanTime={lastScanTime}
               isApiConnected={isApiConnected}
             />

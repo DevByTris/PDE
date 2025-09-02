@@ -2,19 +2,20 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
     "jsx": "react-jsx",
-    "jsxImportSource": "https://esm.sh/react@18.2.0",
+    "jsxImportSource": "react",
     "strict": true,
-    "types": [
-      "https://esm.sh/@types/react@18.2.45/index.d.ts",
-      "https://esm.sh/@types/react-dom@18.2.18/index.d.ts"
-    ]
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "types": ["./types.d.ts"]
   },
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
     "react/": "https://esm.sh/react@18.2.0/",
     "react-dom": "https://esm.sh/react-dom@18.2.0",
     "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime"
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "@types/react": "https://esm.sh/@types/react@18.2.45/index.d.ts",
+    "@types/react-dom": "https://esm.sh/@types/react-dom@18.2.18/index.d.ts"
   },
   "tasks": {
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-run server.ts",
